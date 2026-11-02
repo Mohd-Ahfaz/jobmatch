@@ -89,12 +89,15 @@ if _DATABASE_URL:
     DATABASES = {"default": dj_database_url.parse(_DATABASE_URL)}
     options = DATABASES["default"].setdefault("OPTIONS", {})
 
-    # Aiven and external MySQL providers append ?ssl-mode=REQUIRED to their URL.
-    # dj_database_url parses query params into OPTIONS as-is, but Python MySQLdb / mysqlclient
-    # requires 'ssl_mode' (underscore), NOT 'ssl-mode' (hyphen).
-    if "ssl-mode" in options:
-        options["ssl_mode"] = options.pop("ssl-mode")
+    # Aiven and external MySQL providers append ?ssl-mode=REQUIRED to their URI.
+    # dj_database_url parses query params into top-level OPTIONS keys.
+    # PyMySQL (installed as MySQLdb in jobmatch/__init__.py) rejects top-level 'ssl-mode'
+    # or 'ssl_mode' kwargs, and instead expects an 'ssl' dictionary.
+    options.pop("ssl-mode", None)
+    options.pop("ssl_mode", None)
 
+    # Enable SSL safely across both PyMySQL and MySQLdb
+    options["ssl"] = {"check_hostname": False}
     options.setdefault("charset", "utf8mb4")
 else:
     DATABASES = {
