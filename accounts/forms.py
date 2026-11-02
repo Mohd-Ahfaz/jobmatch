@@ -95,7 +95,7 @@ class ProfileForm(forms.ModelForm):
         max_length=100,
         required=True,
         label="Full Name",
-        widget=forms.TextInput(attrs={"placeholder": "e.g. Alex Morgan"}),
+        widget=forms.TextInput(attrs={"placeholder": "e.g. Your Name"}),
     )
     target_role = forms.ChoiceField(
         choices=_TARGET_ROLE_CHOICES,
