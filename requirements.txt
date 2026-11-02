@@ -1,4 +1,4 @@
-Django==6.1.2
+Django>=5.1,<6
 mysqlclient==2.3.0
 PyMySQL==1.2.3
 pillow==13.0.0
