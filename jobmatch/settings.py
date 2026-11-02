@@ -6,10 +6,32 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # ─── Security ────────────────────────────────────────────────────────────────
 SECRET_KEY = os.environ.get("SECRET_KEY", "change-this-key-before-you-deploy")
-DEBUG = os.environ.get("DEBUG", "True") == "True"
+DEBUG = os.environ.get("DEBUG", "False").lower() in ("true", "1")
+
+# Allow localhost, Render's wildcard *.onrender.com, and any custom domain
+ALLOWED_HOSTS = ["localhost", "127.0.0.1", ".onrender.com"]
+RENDER_EXTERNAL_HOSTNAME = os.environ.get("RENDER_EXTERNAL_HOSTNAME")
+if RENDER_EXTERNAL_HOSTNAME:
+    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
 
 ALLOWED_HOSTS_ENV = os.environ.get("ALLOWED_HOSTS", "")
-ALLOWED_HOSTS = [h.strip() for h in ALLOWED_HOSTS_ENV.split(",") if h.strip()] or ["localhost", "127.0.0.1"]
+if ALLOWED_HOSTS_ENV:
+    ALLOWED_HOSTS.extend([h.strip() for h in ALLOWED_HOSTS_ENV.split(",") if h.strip()])
+
+# CSRF Trusted Origins (required for POST requests on HTTPS with Django 4+)
+CSRF_TRUSTED_ORIGINS = [
+    "https://*.onrender.com",
+    "http://localhost:8000",
+    "http://127.0.0.1:8000",
+]
+if RENDER_EXTERNAL_HOSTNAME:
+    CSRF_TRUSTED_ORIGINS.append(f"https://{RENDER_EXTERNAL_HOSTNAME}")
+CSRF_TRUSTED_ENV = os.environ.get("CSRF_TRUSTED_ORIGINS", "")
+if CSRF_TRUSTED_ENV:
+    CSRF_TRUSTED_ORIGINS.extend([o.strip() for o in CSRF_TRUSTED_ENV.split(",") if o.strip()])
+
+# Tell Django it's behind a reverse proxy that terminates SSL (standard on Render)
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 # ─── Optional API Keys ────────────────────────────────────────────────────────
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
@@ -65,12 +87,15 @@ WSGI_APPLICATION = "jobmatch.wsgi.application"
 _DATABASE_URL = os.environ.get("DATABASE_URL", "")
 if _DATABASE_URL:
     DATABASES = {"default": dj_database_url.parse(_DATABASE_URL)}
-    # Ensure the MySQL engine is used when DATABASE_URL scheme is mysql/mysqlconnector
-    if DATABASES["default"]["ENGINE"] in (
-        "django.db.backends.mysql",
-        "django_mysqlpool.backends.mysqlpool",
-    ):
-        DATABASES["default"].setdefault("OPTIONS", {}).update({"charset": "utf8mb4"})
+    options = DATABASES["default"].setdefault("OPTIONS", {})
+
+    # Aiven and external MySQL providers append ?ssl-mode=REQUIRED to their URL.
+    # dj_database_url parses query params into OPTIONS as-is, but Python MySQLdb / mysqlclient
+    # requires 'ssl_mode' (underscore), NOT 'ssl-mode' (hyphen).
+    if "ssl-mode" in options:
+        options["ssl_mode"] = options.pop("ssl-mode")
+
+    options.setdefault("charset", "utf8mb4")
 else:
     DATABASES = {
         "default": {
