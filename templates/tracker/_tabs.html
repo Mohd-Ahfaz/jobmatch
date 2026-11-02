@@ -1,0 +1,43 @@
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
+  <div>
+    <div class="d-flex align-items-center gap-2 mb-1">
+      <h3 class="mb-0">{{ app.job.title }}</h3>
+      {% if app.status == "saved" %}
+        <span class="badge bg-secondary">Saved</span>
+      {% elif app.status == "applied" %}
+        <span class="badge bg-info text-dark"><i class="bi bi-send-check"></i> Applied</span>
+      {% elif app.status == "interview" %}
+        <span class="badge bg-primary"><i class="bi bi-calendar-check"></i> Interview</span>
+      {% elif app.status == "offer" %}
+        <span class="badge bg-success"><i class="bi bi-trophy-fill"></i> Offer</span>
+      {% elif app.status == "rejected" %}
+        <span class="badge bg-danger">Archived / Rejected</span>
+      {% endif %}
+    </div>
+    <p class="text-muted mb-0">
+      <strong>{{ app.job.company }}</strong> &bull; {% if app.job.is_remote %}Remote{% else %}{{ app.job.location }}{% endif %}
+    </p>
+  </div>
+  <div class="d-flex gap-2 mt-2 mt-md-0">
+    {% if app.job.apply_link %}
+      <a href="{{ app.job.apply_link }}" target="_blank" rel="noopener" class="btn btn-outline-success btn-sm">
+        <i class="bi bi-box-arrow-up-right me-1"></i> Open {{ app.job.company }} Portal
+      </a>
+    {% endif %}
+    <a href="{% url 'board' %}" class="btn btn-outline-secondary btn-sm">
+      <i class="bi bi-arrow-left me-1"></i> Back to Tracker
+    </a>
+  </div>
+</div>
+
+<div class="sub-tabs mb-4">
+  <a href="{% url 'application_detail' app.id %}" class="{% if tab == 'apply' %}active{% endif %}">
+    <i class="bi bi-kanban me-1"></i> Application Details & Journal
+  </a>
+  <a href="{% url 'documents' app.id %}" class="{% if tab == 'documents' %}active{% endif %}">
+    <i class="bi bi-file-earmark-text me-1"></i> Tailored Documents
+  </a>
+  <a href="{% url 'interview' app.id %}" class="{% if tab == 'interview' %}active{% endif %}">
+    <i class="bi bi-chat-quote me-1"></i> Interview Preparation
+  </a>
+</div>

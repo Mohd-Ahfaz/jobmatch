@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% block title %}Jobs{% endblock %}
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
+  <div>
+    <h3 class="mb-0">Job feed</h3>
+    <small class="text-muted">Real verified job openings matched to your skills</small>
+  </div>
+  <div class="d-flex flex-wrap gap-2 mt-2 mt-md-0">
+    <a class="btn btn-sm btn-violet" href="{% url 'suggest_real_jobs' %}">
+      <i class="bi bi-magic me-1"></i> Suggest Real Jobs for My Skills
+    </a>
+    <a class="btn btn-sm {% if not request.GET.min_match and not request.GET.status %}btn-violet{% else %}btn-outline-violet{% endif %}" href="{% url 'job_list' %}">
+      All Jobs
+    </a>
+    <a class="btn btn-sm {% if request.GET.min_match == '50' %}btn-violet{% else %}btn-outline-violet{% endif %}" href="{% url 'job_list' %}?min_match=50">
+      <i class="bi bi-bullseye"></i> Matches My Skills (&ge;50%)
+    </a>
+    <a class="btn btn-sm {% if request.GET.min_match == '75' %}btn-violet{% else %}btn-outline-violet{% endif %}" href="{% url 'job_list' %}?min_match=75">
+      <i class="bi bi-star-fill"></i> Best Fit (&ge;75%)
+    </a>
+    <a class="btn btn-sm {% if request.GET.status == 'unapplied' %}btn-violet{% else %}btn-outline-violet{% endif %}" href="{% url 'job_list' %}?status=unapplied">
+      <i class="bi bi-send"></i> Ready to Apply
+    </a>
+  </div>
+</div>
+
+<form method="get" class="card p-3 mb-4 styled-form">
+  <div class="row g-2">
+    <div class="col-md-3"><input type="text" name="role" placeholder="Role / Keyword" value="{{ request.GET.role }}"></div>
+    <div class="col-md-3"><input type="text" name="location" placeholder="Location" value="{{ request.GET.location }}"></div>
+    <div class="col-md-2"><input type="number" name="salary" placeholder="Min salary (LPA)" value="{{ request.GET.salary }}"></div>
+    <div class="col-md-2">
+      <select name="level">
+        <option value="">Any level</option>
+        {% for key, label in levels %}
+          <option value="{{ key }}" {% if request.GET.level == key %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-2">
+      <select name="work">
+        <option value="">Remote or onsite</option>
+        <option value="remote" {% if request.GET.work == "remote" %}selected{% endif %}>Remote</option>
+        <option value="onsite" {% if request.GET.work == "onsite" %}selected{% endif %}>Onsite</option>
+      </select>
+    </div>
+    <div class="col-md-3">
+      <select name="min_match">
+        <option value="">Any skill match %</option>
+        <option value="50" {% if request.GET.min_match == "50" %}selected{% endif %}>&ge; 50% Skill match</option>
+        <option value="75" {% if request.GET.min_match == "75" %}selected{% endif %}>&ge; 75% Strong fit</option>
+        <option value="100" {% if request.GET.min_match == "100" %}selected{% endif %}>100% Perfect match</option>
+      </select>
+    </div>
+    <div class="col-md-3">
+      <select name="status">
+        <option value="">All application statuses</option>
+        <option value="unapplied" {% if request.GET.status == "unapplied" %}selected{% endif %}>Not applied yet</option>
+        <option value="applied" {% if request.GET.status == "applied" %}selected{% endif %}>Already applied</option>
+      </select>
+    </div>
+    <div class="col-md-2">
+      <select name="posted">
+        <option value="">Any posting date</option>
+        <option value="1" {% if request.GET.posted == "1" %}selected{% endif %}>Last 24 hours</option>
+        <option value="7" {% if request.GET.posted == "7" %}selected{% endif %}>Last 7 days</option>
+        <option value="30" {% if request.GET.posted == "30" %}selected{% endif %}>Last 30 days</option>
+      </select>
+    </div>
+    <div class="col-md-4 text-md-end d-flex gap-2 justify-content-md-end">
+      <a class="btn btn-outline-violet" href="{% url 'job_list' %}">Clear</a>
+      <button class="btn btn-violet">Filter jobs</button>
+    </div>
+  </div>
+</form>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <p class="text-muted mb-0">{{ jobs|length }} job{{ jobs|length|pluralize }} found, sorted by highest skill match</p>
+</div>
+
+{% for job in jobs %}
+  {% include "_job_card.html" %}
+{% empty %}
+  <div class="card p-4 text-center">
+    <h5>No jobs found matching your criteria</h5>
+    <p class="text-muted">Try clearing your filters, or fetch live real job postings tailored to your profile skills.</p>
+    <div class="d-flex justify-content-center gap-2">
+      <a href="{% url 'suggest_real_jobs' %}" class="btn btn-violet btn-sm">
+        <i class="bi bi-magic me-1"></i> Suggest Real Jobs for My Skills
+      </a>
+      <a href="{% url 'job_list' %}" class="btn btn-outline-violet btn-sm">Clear filters</a>
+    </div>
+  </div>
+{% endfor %}
+{% endblock %}

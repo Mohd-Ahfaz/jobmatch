@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block title %}Interview Preparation | {{ app.job.title }}{% endblock %}
+{% block content %}
+{% include "tracker/_tabs.html" with tab="interview" %}
+
+<div class="row g-4">
+  <div class="col-lg-8">
+    <div class="mb-3">
+      <h5 class="mb-1">Technical & Behavioral Questions for {{ app.job.title }}</h5>
+      <p class="text-muted small">
+        These questions are based on {{ app.job.company }}'s required skill set. Formulate your answers and submit to receive instant AI evaluation.
+      </p>
+    </div>
+
+    {% for index, question, saved in items %}
+      <div class="card p-3 mb-3 shadow-sm border" id="q{{ index }}">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <span class="badge bg-light text-secondary border">Question {{ forloop.counter }} of {{ items|length }}</span>
+          {% if saved %}
+            <span class="badge bg-success-subtle text-success border border-success">
+              <i class="bi bi-check-circle-fill"></i> Answer Saved
+            </span>
+          {% endif %}
+        </div>
+
+        <h6 class="fw-semibold text-dark mb-2">{{ question }}</h6>
+
+        <form method="post" class="styled-form">
+          {% csrf_token %}
+          <input type="hidden" name="index" value="{{ index }}">
+          <textarea name="answer" rows="4" class="form-control mb-2" placeholder="Structure your answer with your specific role, technical choices, and measured impact..." required>{{ saved.answer }}</textarea>
+          <button type="submit" class="btn btn-violet btn-sm">
+            <i class="bi bi-send me-1"></i> Submit & Get Evaluation
+          </button>
+        </form>
+
+        {% if saved and saved.feedback %}
+          <div class="mt-3 p-3 rounded bg-white shadow-sm" style="border: 1px solid #e2e8f0; border-left: 4px solid #7c3aed !important;">
+            <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom">
+              <strong class="text-violet small"><i class="bi bi-award-fill me-1"></i> Evaluation &amp; Coaching Report</strong>
+              <small class="text-muted"><i class="bi bi-building me-1"></i> {{ app.job.company }} hiring standards</small>
+            </div>
+            <div class="small text-dark" style="line-height: 1.6; white-space: pre-line;">{{ saved.feedback }}</div>
+          </div>
+        {% endif %}
+      </div>
+    {% endfor %}
+  </div>
+
+  <div class="col-lg-4">
+    <div class="card p-3 mb-4 shadow-sm">
+      <h6 class="text-violet mb-2"><i class="bi bi-lightbulb"></i> The STAR Answering Method</h6>
+      <p class="small text-muted mb-3">Top tech companies look for structured answers using this 4-part framework:</p>
+      
+      <div class="mb-2">
+        <strong class="small text-dark d-block">S &bull; Situation</strong>
+        <p class="small text-muted mb-2">Set the scene and context of the challenge.</p>
+      </div>
+      <div class="mb-2">
+        <strong class="small text-dark d-block">T &bull; Task</strong>
+        <p class="small text-muted mb-2">What was your specific responsibility?</p>
+      </div>
+      <div class="mb-2">
+        <strong class="small text-dark d-block">A &bull; Action</strong>
+        <p class="small text-muted mb-2">Which technical tools and decisions did you execute?</p>
+      </div>
+      <div>
+        <strong class="small text-dark d-block">R &bull; Result</strong>
+        <p class="small text-muted mb-0">Quantifiable outcome (e.g. latency, users, uptime).</p>
+      </div>
+    </div>
+
+    <div class="card p-3 shadow-sm bg-light">
+      <h6 class="text-muted small mb-2">Interview Details</h6>
+      {% if app.interview_date %}
+        <p class="small mb-1"><strong>Scheduled:</strong> {{ app.interview_date|date:"d M Y, H:i" }}</p>
+        <p class="small mb-2 text-muted">{{ app.interview_round|default:"General Round" }}</p>
+      {% else %}
+        <p class="small text-muted mb-2">No interview date scheduled yet.</p>
+      {% endif %}
+      <a href="{% url 'application_detail' app.id %}" class="btn btn-outline-violet btn-sm">
+        <i class="bi bi-pencil me-1"></i> Update Interview Schedule
+      </a>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,126 @@
+:root {
+  --violet: #7c3aed;
+  --violet-dark: #6d28d9;
+  --violet-soft: #f5f3ff;
+  --violet-line: #e9e3fb;
+  --pink: #ec4899;
+  --pink-dark: #be185d;
+  --pink-soft: #fdf2f8;
+  --text: #2b2540;
+  --muted: #7a7490;
+}
+
+body {
+  background: #fff;
+  color: var(--text);
+  font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+}
+
+a { color: var(--violet); text-decoration: none; }
+a:hover { color: var(--pink); }
+h1, h2, h3, h4, h5, h6 { font-weight: 600; }
+.text-muted { color: var(--muted) !important; }
+.text-danger { color: var(--pink-dark) !important; }
+
+/* navigation */
+.site-nav { background: #fff; border-bottom: 1px solid var(--violet-line); }
+.site-nav .navbar-brand { color: var(--violet); font-weight: 700; font-size: 1.3rem; }
+.site-nav .nav-link { color: var(--text); padding: 0.5rem 0.8rem; }
+.site-nav .nav-link:hover { color: var(--pink); }
+.site-footer { border-top: 1px solid var(--violet-line); color: var(--muted); font-size: 0.9rem; }
+
+/* cards */
+.card { border: 1px solid var(--violet-line); border-radius: 10px; box-shadow: none; }
+.job-card:hover { border-color: var(--violet); }
+.job-card h5 a { color: var(--text); }
+.job-card h5 a:hover { color: var(--violet); }
+
+/* buttons */
+.btn-violet { background: var(--violet); color: #fff; border: 1px solid var(--violet); }
+.btn-violet:hover { background: var(--violet-dark); color: #fff; border-color: var(--violet-dark); }
+.btn-outline-violet { background: #fff; color: var(--violet); border: 1px solid var(--violet); }
+.btn-outline-violet:hover { background: var(--violet); color: #fff; }
+.btn-pink { background: var(--pink); color: #fff; border: 1px solid var(--pink); }
+.btn-pink:hover { background: var(--pink-dark); color: #fff; }
+.btn-outline-pink { background: #fff; color: var(--pink-dark); border: 1px solid var(--pink); }
+.btn-outline-pink:hover { background: var(--pink); color: #fff; }
+
+/* chips and badges */
+.skill-chip, .chip-have, .chip-missing {
+  display: inline-block;
+  padding: 2px 10px;
+  margin: 0 4px 4px 0;
+  border-radius: 20px;
+  font-size: 0.82rem;
+}
+.skill-chip { background: var(--violet-soft); color: var(--violet-dark); }
+.chip-have { background: var(--violet); color: #fff; }
+.chip-missing { background: var(--pink-soft); color: var(--pink-dark); border: 1px solid var(--pink); }
+.badge-violet { background: var(--violet-soft); color: var(--violet-dark); }
+.badge-pink { background: var(--pink-soft); color: var(--pink-dark); }
+.risk-low { background: var(--violet-soft); color: var(--violet-dark); }
+.risk-medium { background: var(--pink-soft); color: var(--pink-dark); }
+.risk-high { background: var(--pink); color: #fff; }
+
+.match-circle {
+  width: 62px;
+  height: 62px;
+  margin: 0 0 8px auto;
+  border: 4px solid var(--violet);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  color: var(--violet);
+}
+
+.progress { height: 10px; background: var(--violet-soft); }
+.progress-bar { background: linear-gradient(90deg, var(--violet), var(--pink)); }
+
+/* pages */
+.hero { padding: 70px 0 50px; }
+.hero h1 { font-size: 2.8rem; max-width: 620px; }
+.hero p { color: var(--muted); font-size: 1.15rem; max-width: 520px; }
+.auth-box { max-width: 420px; margin: 40px auto; }
+.big-number { font-size: 2.2rem; font-weight: 700; color: var(--violet); }
+.tile { display: block; padding: 16px; border: 1px solid var(--violet-line); border-radius: 10px; color: var(--text); background: #fff; }
+.tile:hover { border-color: var(--pink); color: var(--pink-dark); }
+.tile i { color: var(--violet); font-size: 1.4rem; }
+
+.sub-tabs { border-bottom: 1px solid var(--violet-line); }
+.sub-tabs a { display: inline-block; padding: 8px 16px; color: var(--muted); border-bottom: 3px solid transparent; }
+.sub-tabs a.active { color: var(--violet); border-bottom-color: var(--pink); font-weight: 600; }
+
+.kanban-head { background: var(--violet-soft); color: var(--violet-dark); border-radius: 8px; padding: 8px 12px; font-weight: 600; }
+.kanban-card { border: 1px solid var(--violet-line); border-radius: 8px; padding: 10px; margin-top: 10px; background: #fff; }
+
+.answer-feedback { background: var(--pink-soft); border-left: 4px solid var(--pink); padding: 8px 12px; border-radius: 6px; }
+.draft-box { background: var(--violet-soft); border-radius: 8px; padding: 12px; white-space: pre-wrap; font-size: 0.92rem; }
+
+/* forms */
+.styled-form input:not([type=checkbox]):not([type=radio]),
+.styled-form select,
+.styled-form textarea {
+  display: block;
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--violet-line);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--text);
+}
+.styled-form input:focus, .styled-form select:focus, .styled-form textarea:focus {
+  outline: none;
+  border-color: var(--violet);
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.12);
+}
+.styled-form input[type=checkbox], .styled-form input[type=radio] { accent-color: var(--violet); margin-right: 6px; }
+.styled-form label { font-weight: 500; }
+#id_skills { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 4px 12px; padding: 0; list-style: none; }
+#id_skills label { font-weight: 400; }
+.form-text { color: var(--muted); }
+
+/* messages */
+.alert { border-radius: 8px; border: 1px solid var(--violet-line); background: var(--violet-soft); color: var(--violet-dark); }
+.alert-error, .alert-warning { background: var(--pink-soft); border-color: var(--pink); color: var(--pink-dark); }

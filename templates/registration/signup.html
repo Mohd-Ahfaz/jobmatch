@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Sign up{% endblock %}
+{% block content %}
+<div class="card auth-box p-4">
+  <h4 class="mb-1">Create Your Account</h4>
+  <p class="text-muted small mb-3">Sign up with your real email address so you can apply for real jobs and track recruiter replies.</p>
+  <form method="post" class="styled-form" autocomplete="off">
+    {% csrf_token %}
+    <div style="display:none;" aria-hidden="true">
+      <input type="text" name="prevent_autofill" tabindex="-1" autocomplete="off" />
+      <input type="password" name="password_fake" tabindex="-1" autocomplete="off" />
+    </div>
+    {% include "_form.html" %}
+    <button class="btn btn-violet w-100">Sign up</button>
+  </form>
+  <div class="mt-3 small">Already have an account? <a href="{% url 'login' %}">Log in</a></div>
+</div>
+{% endblock %}

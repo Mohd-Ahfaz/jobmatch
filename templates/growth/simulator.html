@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Simulator{% endblock %}
+{% block content %}
+{% include "growth/_tabs.html" %}
+
+<p class="text-muted">Pick a skill you do not have yet and see how many more jobs you would match (60% or more of the required skills).</p>
+<form method="get" class="styled-form d-flex gap-2 mb-4" style="max-width: 450px;">
+  <select name="skill">
+    {% for skill in options %}
+      <option value="{{ skill.name }}" {% if result.skill == skill.name %}selected{% endif %}>{{ skill.name }}</option>
+    {% endfor %}
+  </select>
+  <button class="btn btn-violet text-nowrap">What if I learn it?</button>
+</form>
+
+{% if result %}
+  <div class="card" style="max-width: 450px;"><div class="card-body text-center">
+    <p class="mb-1">If you learn {{ result.skill }}, matching jobs go from</p>
+    <div class="big-number">{{ result.before }} to {{ result.after }}</div>
+    <p class="text-muted mb-0">out of {{ total }} jobs</p>
+  </div></div>
+{% endif %}
+{% endblock %}

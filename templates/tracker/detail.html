@@ -1,0 +1,188 @@
+{% extends "base.html" %}
+{% block title %}{{ app.job.title }} | Application Details{% endblock %}
+{% block content %}
+{% include "tracker/_tabs.html" with tab="apply" %}
+
+<div class="row g-4">
+  <!-- Left Column: Tracking Details & Interview/Offer info -->
+  <div class="col-lg-7">
+    <div class="card p-3 mb-4 shadow-sm">
+      <h5 class="mb-3"><i class="bi bi-sliders text-violet"></i> Application Tracking Details</h5>
+      
+      <form method="post" action="{% url 'update_application_details' app.id %}" class="styled-form">
+        {% csrf_token %}
+
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label small text-muted">Current Pipeline Stage</label>
+            <select name="status" class="form-select">
+              {% for key, label in statuses %}
+                <option value="{{ key }}" {% if key == app.status %}selected{% endif %}>{{ label }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label small text-muted">Application Method</label>
+            <select name="application_method" class="form-select">
+              {% for key, label in methods %}
+                <option value="{{ key }}" {% if key == app.application_method %}selected{% endif %}>{{ label }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label small text-muted">Application / Requisition ID</label>
+            <input type="text" name="confirmation_id" class="form-control" placeholder="e.g. REQ-98214" value="{{ app.confirmation_id }}">
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label small text-muted">Date Applied</label>
+            <input type="date" name="applied_on" class="form-control" value="{{ app.applied_on|date:'Y-m-d' }}">
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label small text-muted">Recruiter / Contact Name</label>
+            <input type="text" name="recruiter_name" class="form-control" placeholder="e.g. Sarah Jenkins" value="{{ app.recruiter_name }}">
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label small text-muted">Recruiter Email</label>
+            <input type="email" name="recruiter_email" class="form-control" placeholder="recruiter@company.com" value="{{ app.recruiter_email }}">
+          </div>
+
+          <div class="col-12">
+            <label class="form-label small text-muted">Direct Application Portal URL</label>
+            <input type="url" name="portal_url" class="form-control" placeholder="https://..." value="{{ app.portal_url|default:app.job.apply_link }}">
+          </div>
+
+          <!-- Interview specifics if in interview stage -->
+          <div class="col-12 mt-3 pt-3 border-top">
+            <h6 class="text-primary mb-2"><i class="bi bi-calendar-event"></i> Interview Details</h6>
+            <div class="row g-2">
+              <div class="col-md-6">
+                <label class="form-label small text-muted">Next Interview Date & Time</label>
+                <input type="datetime-local" name="interview_date" class="form-control" value="{{ app.interview_date|date:'Y-m-d\TH:i' }}">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label small text-muted">Interview Round</label>
+                <input type="text" name="interview_round" class="form-control" placeholder="e.g. Technical Round 1 (Python & System Design)" value="{{ app.interview_round }}">
+              </div>
+            </div>
+          </div>
+
+          <!-- Offer specifics if in offer stage -->
+          <div class="col-12 mt-3 pt-3 border-top">
+            <h6 class="text-success mb-2"><i class="bi bi-trophy"></i> Offer Details</h6>
+            <div class="row g-2">
+              <div class="col-md-6">
+                <label class="form-label small text-muted">Offered Annual CTC (LPA)</label>
+                <input type="number" name="salary_offered" class="form-control" placeholder="e.g. 14" value="{{ app.salary_offered|default:'' }}">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label small text-muted">Offer Decision Deadline</label>
+                <input type="date" name="offer_deadline" class="form-control" value="{{ app.offer_deadline|date:'Y-m-d' }}">
+              </div>
+            </div>
+          </div>
+
+          <div class="col-12 mt-3">
+            <button type="submit" class="btn btn-violet">
+              <i class="bi bi-check2-circle me-1"></i> Save Tracking Updates
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <!-- Application Journal & Activity Log -->
+    <div class="card p-3 shadow-sm">
+      <h5 class="mb-2"><i class="bi bi-journal-text text-violet"></i> Application Journal & Notes</h5>
+      <p class="small text-muted mb-3">Record recruiter calls, interview takeaways, salary discussions, or action items.</p>
+
+      <form method="post" action="{% url 'add_application_note' app.id %}" class="styled-form mb-4">
+        {% csrf_token %}
+        <div class="input-group">
+          <input type="text" name="note_text" class="form-control" placeholder="Add a log entry (e.g. Spoke with recruiter Sarah on phone...)" required>
+          <button class="btn btn-violet" type="submit">Add Log</button>
+        </div>
+      </form>
+
+      <div class="activity-log">
+        {% for note in journal_notes %}
+          <div class="p-2 mb-2 bg-light rounded border-start border-3 border-violet">
+            <div class="small text-muted mb-1">{{ note.created_at|date:"d M Y, H:i" }}</div>
+            <div class="small text-dark">{{ note.text }}</div>
+          </div>
+        {% empty %}
+          <p class="text-muted small mb-0">No journal notes logged yet. Use the input above to record updates.</p>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Right Column: Follow-up & Quick Actions -->
+  <div class="col-lg-5">
+    <div class="card p-3 mb-4 shadow-sm">
+      <h5 class="mb-2"><i class="bi bi-calendar-check text-violet"></i> Follow-Up Scheduler</h5>
+      <p class="small text-muted mb-3">Following up after 5-7 days significantly increases response rates.</p>
+
+      <form method="post" action="{% url 'update_application_details' app.id %}" class="styled-form mb-3">
+        {% csrf_token %}
+        <label class="form-label small text-muted">Follow-Up Date</label>
+        <div class="input-group mb-2">
+          <input type="date" name="follow_up_on" class="form-control" value="{{ app.follow_up_on|date:'Y-m-d' }}">
+          <button class="btn btn-outline-violet" type="submit">Save Date</button>
+        </div>
+      </form>
+
+      <div class="d-flex justify-content-between align-items-center mb-1">
+        <label class="small text-muted mb-0"><strong>Ready-to-Send Follow-up Message:</strong></label>
+        <button type="button" class="btn btn-sm btn-outline-violet" onclick="navigator.clipboard.writeText(document.getElementById('followText').innerText); this.innerHTML='<i class=\'bi bi-check-lg\'></i> Copied!'; setTimeout(() => this.innerHTML='<i class=\'bi bi-clipboard\'></i> Copy', 2000)">
+          <i class="bi bi-clipboard"></i> Copy
+        </button>
+      </div>
+
+      <div class="p-3 bg-light border rounded small mb-3" id="followText" style="white-space: pre-wrap; font-family: inherit;">{{ follow_text }}</div>
+
+      {% if gmail_link %}
+        <a class="btn btn-success btn-sm w-100 mb-2" href="{{ gmail_link }}" target="_blank" rel="noopener">
+          <i class="bi bi-google me-1"></i> Send via Gmail (to {{ contact_target }})
+        </a>
+      {% endif %}
+      
+      {% if not gmail_link and not follow_mail %}
+        <small class="text-muted d-block text-center">
+          <i class="bi bi-info-circle"></i> Use the Copy button above to send via LinkedIn or portal message.
+        </small>
+      {% endif %}
+    </div>
+
+    <div class="card p-3 mb-4 shadow-sm">
+      <h6 class="text-muted mb-3">Quick Navigation</h6>
+      <div class="d-grid gap-2">
+        {% if app.job.apply_link %}
+          <a href="{{ app.job.apply_link }}" target="_blank" rel="noopener" class="btn btn-outline-success btn-sm text-start">
+            <i class="bi bi-box-arrow-up-right me-2"></i> Official {{ app.job.company }} Careers Page
+          </a>
+        {% endif %}
+        <a href="{% url 'documents' app.id %}" class="btn btn-outline-violet btn-sm text-start">
+          <i class="bi bi-file-earmark-text me-2"></i> Review Tailored Resume & Cover Letter
+        </a>
+        <a href="{% url 'interview' app.id %}" class="btn btn-outline-violet btn-sm text-start">
+          <i class="bi bi-chat-quote me-2"></i> Practice Role-Specific Interview Questions
+        </a>
+      </div>
+    </div>
+
+    <div class="card p-3">
+      <form method="post" action="{% url 'delete_application' app.id %}" onsubmit="return confirm('Are you sure you want to remove this job from your tracker?');">
+        {% csrf_token %}
+        <button class="btn btn-outline-danger btn-sm w-100">
+          <i class="bi bi-trash me-1"></i> Remove from Tracker
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

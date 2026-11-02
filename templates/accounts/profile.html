@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+{% block title %}{% if is_initial_setup %}Step 2: Review Profile{% else %}Profile{% endif %}{% endblock %}
+{% block content %}
+<div class="row justify-content-center py-2">
+  <div class="col-lg-8">
+    {% if is_initial_setup %}
+      <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
+        <div class="d-flex align-items-center gap-2">
+          <span class="badge rounded-circle p-2 bg-success text-white" style="width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;"><i class="bi bi-check"></i></span>
+          <span class="text-muted">Step 1: Upload Resume</span>
+        </div>
+        <div class="text-muted"><i class="bi bi-arrow-right"></i></div>
+        <div class="d-flex align-items-center gap-2">
+          <span class="badge rounded-circle p-2 bg-primary text-white" style="width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;">2</span>
+          <strong>Step 2: Review &amp; Complete Profile</strong>
+        </div>
+      </div>
+    {% endif %}
+
+    <div class="d-flex justify-content-between align-items-center mb-2">
+      <h3 class="mb-0">{% if is_initial_setup %}Review &amp; Complete Your Profile{% else %}Your Profile{% endif %}</h3>
+      {% if not is_initial_setup %}
+        <a href="{% url 'dashboard' %}" class="small"><i class="bi bi-arrow-left"></i> Back to Dashboard</a>
+      {% endif %}
+    </div>
+
+    {% if profile.resume_file %}
+      <div class="alert alert-light border py-2 px-3 mb-3 d-flex justify-content-between align-items-center">
+        <div class="small">
+          <i class="bi bi-file-earmark-check-fill text-violet me-1"></i>
+          <strong>Resume scanned:</strong> {{ profile.resume_file.name|truncatechars:40 }}
+          {% if scanned_skill_names %}
+            &mdash; <span class="text-muted">{{ scanned_skill_names|length }} skill{{ scanned_skill_names|length|pluralize }} auto-detected</span>
+          {% endif %}
+        </div>
+        <a href="{% url 'upload_resume' %}" class="btn btn-sm btn-outline-violet">Re-scan resume</a>
+      </div>
+    {% else %}
+      <div class="alert alert-light border py-2 px-3 mb-3 d-flex justify-content-between align-items-center">
+        <span class="small text-muted"><i class="bi bi-upload me-1"></i> No resume uploaded yet. Upload one to auto-fill your details.</span>
+        <a href="{% url 'upload_resume' %}" class="btn btn-sm btn-violet">Upload Resume</a>
+      </div>
+    {% endif %}
+
+    <div class="d-flex justify-content-between small text-muted mb-1">
+      <span>Profile completeness</span>
+      <span><strong>{{ profile.completeness }}%</strong></span>
+    </div>
+    <div class="progress mb-4"><div class="progress-bar" style="width:{{ profile.completeness }}%"></div></div>
+
+    <div class="card p-4 shadow-sm mb-4">
+      <form method="post" class="styled-form">
+        {% csrf_token %}
+
+        {# Render all fields except 'skills' using the generic helper #}
+        {% for error in form.non_field_errors %}
+          <div class="text-danger mb-2">{{ error }}</div>
+        {% endfor %}
+        {% for field in form %}
+          {% if field.name != "skills" %}
+            <div class="mb-3">
+              {% if field.widget_type == "checkbox" %}
+                {{ field }}<label for="{{ field.id_for_label }}">{{ field.label }}</label>
+              {% else %}
+                <label class="mb-1" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {{ field }}
+              {% endif %}
+              {% if field.help_text %}<div class="form-text">{{ field.help_text|safe }}</div>{% endif %}
+              {% for error in field.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+            </div>
+          {% endif %}
+        {% endfor %}
+
+        {# Custom skills section with scanned badges #}
+        <div class="mb-4">
+          <label class="fw-bold mb-2 d-block">
+            Skills
+            {% if scanned_skill_names %}
+              <span class="badge bg-success ms-2" style="font-size:0.72rem;font-weight:500;">
+                <i class="bi bi-magic me-1"></i>{{ scanned_skill_names|length }} auto-detected from resume
+              </span>
+            {% endif %}
+          </label>
+
+          <div style="display:grid;grid-template-columns:repeat(auto-fill, minmax(170px, 1fr));gap:6px 16px;">
+            {% for checkbox in form.skills %}
+              {% with skill_name=checkbox.data.label %}
+                <div class="d-flex align-items-center gap-1 py-1 {% if skill_name in scanned_skill_names %}scanned-skill{% endif %}"
+                     style="{% if skill_name in scanned_skill_names %}background:rgba(25,135,84,0.07);border-radius:6px;padding:2px 6px;{% endif %}">
+                  {{ checkbox.tag }}
+                  <label for="{{ checkbox.id_for_label }}" class="mb-0" style="font-weight:{% if skill_name in scanned_skill_names %}600{% else %}400{% endif %};cursor:pointer;">
+                    {{ skill_name }}
+                    {% if skill_name in scanned_skill_names %}
+                      <i class="bi bi-check-circle-fill text-success ms-1" title="Found in your resume" style="font-size:0.75rem;"></i>
+                    {% endif %}
+                  </label>
+                </div>
+              {% endwith %}
+            {% endfor %}
+          </div>
+
+          {% for error in form.skills.errors %}
+            <div class="text-danger small mt-2">{{ error }}</div>
+          {% endfor %}
+        </div>
+
+        <div class="d-flex flex-wrap gap-2 mt-4 pt-3 border-top">
+          <button class="btn btn-violet {% if is_initial_setup %}btn-lg{% endif %}">
+            {% if is_initial_setup %}
+              <i class="bi bi-check2-circle me-1"></i> Complete Setup &amp; Go to Dashboard &rarr;
+            {% else %}
+              Save Profile Changes
+            {% endif %}
+          </button>
+          {% if not is_initial_setup %}
+            <a class="btn btn-outline-violet" href="{% url 'dashboard' %}">Cancel</a>
+          {% endif %}
+          <a class="btn btn-outline-violet" href="{% url 'quiz_list' %}">Verify skills with quizzes</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

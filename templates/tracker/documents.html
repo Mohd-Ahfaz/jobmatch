@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% block title %}Application Documents | {{ app.job.title }}{% endblock %}
+{% block content %}
+{% include "tracker/_tabs.html" with tab="documents" %}
+
+<div class="row g-4">
+  <div class="col-lg-7">
+    <div class="card p-3 mb-4 shadow-sm">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <h5 class="mb-0"><i class="bi bi-file-earmark-person text-violet"></i> Tailored Application Materials</h5>
+        <div class="d-flex gap-2">
+          <button type="button" class="btn btn-sm btn-outline-violet" onclick="navigator.clipboard.writeText(document.querySelector('textarea[name=cover_letter]').value); this.innerHTML='<i class=\'bi bi-check-lg\'></i> Letter Copied!'; setTimeout(() => this.innerHTML='<i class=\'bi bi-clipboard\'></i> Copy Letter', 2000)">
+            <i class="bi bi-clipboard"></i> Copy Letter
+          </button>
+          <button type="button" class="btn btn-sm btn-outline-violet" onclick="navigator.clipboard.writeText(document.querySelector('textarea[name=resume_text]').value); this.innerHTML='<i class=\'bi bi-check-lg\'></i> Resume Copied!'; setTimeout(() => this.innerHTML='<i class=\'bi bi-clipboard\'></i> Copy Resume', 2000)">
+            <i class="bi bi-clipboard"></i> Copy Resume
+          </button>
+        </div>
+      </div>
+      <p class="small text-muted mb-3">
+        These documents are tailored specifically to match {{ app.job.company }}'s requirements. You can customize them anytime.
+      </p>
+
+      {% if profile.resume_file %}
+        <div class="alert alert-info py-2 small mb-3 d-flex justify-content-between align-items-center">
+          <div>
+            <i class="bi bi-file-earmark-pdf-fill text-danger me-1"></i>
+            <strong>Original PDF Resume:</strong> {{ profile.resume_file.name }}
+          </div>
+          <a href="{{ profile.resume_file.url }}" target="_blank" class="btn btn-sm btn-outline-info">
+            <i class="bi bi-box-arrow-up-right"></i> View PDF
+          </a>
+        </div>
+      {% endif %}
+
+      <form method="post" class="styled-form">
+        {% csrf_token %}
+        <label class="form-label small text-muted"><strong>Tailored Cover Letter:</strong></label>
+        <textarea name="cover_letter" rows="8" class="form-control mb-3">{{ cover }}</textarea>
+
+        <label class="form-label small text-muted"><strong>Keyword-Optimized Resume Text:</strong></label>
+        <textarea name="resume_text" rows="14" class="form-control mb-3">{{ resume }}</textarea>
+
+        <button type="submit" class="btn btn-violet">
+          <i class="bi bi-save me-1"></i> Save Changes & Re-evaluate ATS
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <div class="col-lg-5">
+    <div class="card p-3 mb-4 shadow-sm">
+      <h5 class="mb-3"><i class="bi bi-speedometer2 text-violet"></i> ATS Keyword Compatibility</h5>
+      <div class="d-flex align-items-center gap-3 mb-2">
+        <div class="big-number mb-0">{{ ats.score }}%</div>
+        <div class="small text-muted">Applicant Tracking<br>System Readiness</div>
+      </div>
+      <div class="progress mb-3"><div class="progress-bar" style="width: {{ ats.score }}%"></div></div>
+
+      <div class="mb-3">
+        <strong class="small text-muted d-block mb-1">KEYWORDS FOUND IN RESUME ({{ ats.found|length }})</strong>
+        {% for name in ats.found %}
+          <span class="chip-have"><i class="bi bi-check-lg"></i> {{ name }}</span>
+        {% empty %}
+          <span class="text-muted small">No target keywords detected in text.</span>
+        {% endfor %}
+      </div>
+
+      <div class="mb-3">
+        <strong class="small text-muted d-block mb-1">KEYWORDS TO CONSIDER ADDING</strong>
+        {% for name in ats.missing %}
+          <span class="chip-missing">{{ name }}</span>
+        {% empty %}
+          <span class="text-success small"><i class="bi bi-check-circle-fill"></i> All job skills included!</span>
+        {% endfor %}
+      </div>
+
+      {% if ats.tips %}
+        <div class="mt-3 pt-3 border-top">
+          <strong class="small text-muted d-block mb-1">ATS FORMATTING TIPS</strong>
+          <ul class="small text-muted ps-3 mb-0">
+            {% for tip in ats.tips %}
+              <li class="mb-1">{{ tip }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+      {% endif %}
+    </div>
+
+    {% if app.job.apply_link %}
+      <div class="card p-3 shadow-sm border-success bg-success-subtle">
+        <h6 class="text-success mb-2"><i class="bi bi-box-arrow-up-right"></i> Submit to Official Portal</h6>
+        <p class="small text-muted mb-2">
+          Copy your tailored cover letter and resume above, then paste directly on the official application page.
+        </p>
+        <a href="{{ app.job.apply_link }}" target="_blank" rel="noopener" class="btn btn-success btn-sm w-100">
+          Open {{ app.job.company }} Portal <i class="bi bi-box-arrow-up-right"></i>
+        </a>
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

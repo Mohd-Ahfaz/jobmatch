@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Insights{% endblock %}
+{% block content %}
+{% include "growth/_tabs.html" %}
+
+<div class="row g-3 mb-4">
+  <div class="col-md-4"><div class="card"><div class="card-body">
+    <h6 class="text-muted">Applications sent</h6>
+    <div class="big-number">{{ applied_count }}</div>
+  </div></div></div>
+  <div class="col-md-4"><div class="card"><div class="card-body">
+    <h6 class="text-muted">Response rate</h6>
+    <div class="big-number">{{ response_rate }}%</div>
+  </div></div></div>
+  <div class="col-md-4"><div class="card"><div class="card-body">
+    <h6 class="text-muted">Time to reply</h6>
+    <div class="big-number">{% if average_days is not None %}{{ average_days }} days{% else %}-{% endif %}</div>
+  </div></div></div>
+</div>
+
+<h5>Skills that led to interviews</h5>
+{% for name, count in top_skills %}
+  <span class="skill-chip">{{ name }} ({{ count }})</span>
+{% empty %}
+  <p class="text-muted">Once you move a job to Interview or Offer in the tracker, the skills from that job show up here.</p>
+{% endfor %}
+{% endblock %}

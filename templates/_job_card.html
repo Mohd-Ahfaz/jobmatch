@@ -1,0 +1,69 @@
+<div class="card job-card mb-3">
+  <div class="card-body d-flex flex-column flex-md-row justify-content-between gap-3 align-items-md-center">
+    <div class="flex-grow-1">
+      <div class="d-flex align-items-center flex-wrap gap-2 mb-1">
+        <h5 class="mb-0"><a href="{% url 'job_detail' job.id %}">{{ job.title }}</a></h5>
+        {% if job.is_real %}
+          <span class="badge bg-success-subtle text-success border border-success" title="Verified Real Job Opening">
+            <i class="bi bi-patch-check-fill"></i> Real Job
+          </span>
+        {% endif %}
+        {% if job.application and job.application.status == "applied" %}
+          <span class="badge bg-success"><i class="bi bi-check-circle-fill"></i> Applied</span>
+        {% elif job.application and job.application.status == "interview" %}
+          <span class="badge bg-primary">Interview</span>
+        {% elif job.application and job.application.status == "offer" %}
+          <span class="badge bg-warning text-dark">Offer</span>
+        {% elif job.application and job.application.status == "saved" %}
+          <span class="badge bg-secondary">Saved</span>
+        {% endif %}
+      </div>
+      <div class="text-muted">
+        <strong>{{ job.company }}</strong> &bull; {% if job.is_remote %}Remote{% else %}{{ job.location }}{% endif %}
+        {% if job.source %}
+          <span class="badge bg-light text-secondary border ms-1">{{ job.source }}</span>
+        {% endif %}
+      </div>
+      <div class="small mt-1 text-muted">{{ job.salary_text }} &bull; {{ job.get_level_display }} &bull; Posted {{ job.posted_on|date:"d M" }}</div>
+      
+      <div class="mt-2">
+        {% if job.match and job.match.have %}
+          {% for name in job.match.have %}
+            <span class="chip-have" title="Matched skill from your profile"><i class="bi bi-check-lg"></i> {{ name }}</span>
+          {% endfor %}
+        {% endif %}
+        {% if job.match and job.match.missing %}
+          {% for name in job.match.missing %}
+            <span class="chip-missing" title="Skill missing from your profile">{{ name }}</span>
+          {% endfor %}
+        {% endif %}
+        {% if not job.match %}
+          {% for skill in job.skills.all %}<span class="skill-chip">{{ skill.name }}</span>{% endfor %}
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="text-md-end flex-shrink-0 d-flex flex-row flex-md-column justify-content-between align-items-end gap-2">
+      <div class="d-flex align-items-center gap-2">
+        <div class="match-circle mb-0">{{ job.match.percent }}%</div>
+      </div>
+      <div class="w-100">
+        <span class="badge risk-{{ job.scam.level|lower }} d-block mb-2">Scam risk: {{ job.scam.level }}</span>
+        {% if job.application and job.application.status != "saved" %}
+          <a href="{% url 'application_detail' job.application.id %}" class="btn btn-sm btn-outline-violet w-100">
+            View Application
+          </a>
+        {% else %}
+          {% if job.apply_link %}
+            <a href="{{ job.apply_link }}" target="_blank" rel="noopener" class="btn btn-sm btn-success w-100 text-nowrap mb-1">
+              <i class="bi bi-box-arrow-up-right me-1"></i> Apply on Company Site
+            </a>
+          {% endif %}
+          <a href="{% url 'apply_job' job.id %}" class="btn btn-sm btn-outline-violet w-100 text-nowrap mb-1">
+            <i class="bi bi-journal-plus me-1"></i> Prepare &amp; Track
+          </a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>

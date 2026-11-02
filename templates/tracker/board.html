@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% block title %}Application Tracker{% endblock %}
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
+  <div>
+    <h3 class="mb-0">Application Tracker</h3>
+    <small class="text-muted">Manage your job pipeline, interviews, follow-ups, and offer status</small>
+  </div>
+  <div class="d-flex gap-2 mt-2 mt-md-0">
+    <a href="{% url 'job_list' %}" class="btn btn-outline-violet btn-sm">
+      <i class="bi bi-search me-1"></i> Browse More Real Jobs
+    </a>
+  </div>
+</div>
+
+{% if reminders %}
+  <div class="alert alert-warning d-flex align-items-center gap-2 mb-4">
+    <i class="bi bi-bell-fill fs-5"></i>
+    <div>
+      <strong>Follow-ups due soon:</strong>
+      {% for app in reminders %}
+        <a href="{% url 'application_detail' app.id %}" class="fw-semibold text-dark">
+          {{ app.job.company }} ({{ app.job.title }})
+        </a>{% if not forloop.last %}, {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+{% endif %}
+
+<div class="row row-cols-1 row-cols-md-3 row-cols-lg-5 g-3">
+  {% for key, label, apps in columns %}
+    <div class="col">
+      <div class="kanban-head d-flex justify-content-between align-items-center mb-2">
+        <span>{{ label }}</span>
+        <span class="badge bg-light text-dark rounded-pill">{{ apps|length }}</span>
+      </div>
+
+      <div class="d-flex flex-column gap-2">
+        {% for app in apps %}
+          <div class="card p-3 shadow-sm border" style="border-radius: 8px;">
+            <div class="d-flex justify-content-between align-items-start mb-1">
+              <a href="{% url 'application_detail' app.id %}" class="text-decoration-none fw-semibold text-dark">
+                {{ app.job.title }}
+              </a>
+            </div>
+
+            <div class="small text-muted mb-2 d-flex justify-content-between align-items-center">
+              <span>{{ app.job.company }}</span>
+              {% if app.job.apply_link %}
+                <a href="{{ app.job.apply_link }}" target="_blank" rel="noopener" class="text-muted" title="Open official company careers portal">
+                  <i class="bi bi-box-arrow-up-right"></i>
+                </a>
+              {% endif %}
+            </div>
+
+            {% if app.application_method %}
+              <div class="mb-2">
+                <span class="badge bg-light text-secondary border small py-1" style="font-size: 0.72rem;">
+                  {{ app.get_application_method_display|truncatechars:24 }}
+                </span>
+              </div>
+            {% endif %}
+
+            {% if app.applied_on %}
+              <div class="small text-muted mb-1" style="font-size: 0.78rem;">
+                <i class="bi bi-clock-history"></i> Applied {{ app.applied_on|date:"d M" }}
+                {% if app.days_since_applied %}({{ app.days_since_applied }}d ago){% endif %}
+              </div>
+            {% endif %}
+
+            {% if app.follow_up_on and app.status in 'applied,interview' %}
+              <div class="small text-primary mb-2" style="font-size: 0.78rem;">
+                <i class="bi bi-bell"></i> Follow-up: {{ app.follow_up_on|date:"d M" }}
+              </div>
+            {% endif %}
+
+            {% if app.interview_date and app.status == 'interview' %}
+              <div class="small text-success mb-2" style="font-size: 0.78rem;">
+                <i class="bi bi-calendar-event"></i> {{ app.interview_date|date:"d M, H:i" }}
+              </div>
+            {% endif %}
+
+            {% if app.salary_offered and app.status == 'offer' %}
+              <div class="small text-success fw-semibold mb-2" style="font-size: 0.78rem;">
+                <i class="bi bi-cash-stack"></i> {{ app.salary_offered }} LPA Offered
+              </div>
+            {% endif %}
+
+            <form method="post" action="{% url 'change_status' app.id %}" class="mt-auto pt-2 border-top">
+              {% csrf_token %}
+              <label class="small text-muted d-block mb-1" style="font-size: 0.7rem;">Move Stage:</label>
+              <select name="status" class="form-select form-select-sm auto-submit" style="font-size: 0.8rem;">
+                {% for status_key, status_label in app.STATUSES %}
+                  <option value="{{ status_key }}" {% if status_key == app.status %}selected{% endif %}>
+                    {{ status_label }}
+                  </option>
+                {% endfor %}
+              </select>
+            </form>
+          </div>
+        {% empty %}
+          <div class="card p-3 text-center border-dashed text-muted small" style="background: #fafafa; border-style: dashed;">
+            No applications in {{ label|lower }}.
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  {% endfor %}
+</div>
+{% endblock %}

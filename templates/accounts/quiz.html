@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}{{ skill.name }} quiz{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+    <h3 class="mb-3">{{ skill.name }} quiz</h3>
+    <form method="post" class="styled-form">
+      {% csrf_token %}
+      {% for question in questions %}
+        <div class="card p-3 mb-3">
+          <p class="fw-semibold mb-2">{{ forloop.counter }}. {{ question.text }}</p>
+          {% for letter, text in question.options %}
+            <div class="mb-1">
+              <input type="radio" name="q{{ question.id }}" id="q{{ question.id }}{{ letter }}" value="{{ letter }}" required>
+              <label for="q{{ question.id }}{{ letter }}">{{ text }}</label>
+            </div>
+          {% endfor %}
+        </div>
+      {% endfor %}
+      <button class="btn btn-violet">Submit answers</button>
+      <a class="btn btn-outline-violet" href="{% url 'quiz_list' %}">Cancel</a>
+    </form>
+  </div>
+</div>
+{% endblock %}

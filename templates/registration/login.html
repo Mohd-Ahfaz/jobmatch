@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Log in{% endblock %}
+{% block content %}
+<div class="card auth-box p-4">
+  <h4 class="mb-1">Log In with Your Email</h4>
+  <p class="text-muted small mb-3">Enter your real email and password to access your dashboard and job applications.</p>
+  <form method="post" class="styled-form" autocomplete="off">
+    {% csrf_token %}
+    <div style="display:none;" aria-hidden="true">
+      <input type="text" name="prevent_autofill" tabindex="-1" autocomplete="off" />
+      <input type="password" name="password_fake" tabindex="-1" autocomplete="off" />
+    </div>
+    {% include "_form.html" %}
+    <button class="btn btn-violet w-100">Log in</button>
+  </form>
+  <div class="mt-3 small">
+    New here? <a href="{% url 'signup' %}">Create an account</a>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="hero">
+  <h1>Find jobs that fit your skills, and see what to learn next</h1>
+  <p class="mt-3">JobMatch compares your skills with real job listings, warns you about scams, and helps you apply and track every application in one place.</p>
+  <div class="mt-4">
+    <a class="btn btn-violet btn-lg me-2" href="{% url 'signup' %}">Create free account</a>
+    <a class="btn btn-outline-violet btn-lg" href="{% url 'login' %}">Log in</a>
+  </div>
+</section>
+
+<div class="row g-3">
+  <div class="col-md-4">
+    <div class="card h-100 p-3">
+      <h5><i class="bi bi-bullseye text-muted"></i> Match score</h5>
+      <p class="text-muted mb-0">Every job shows how many required skills you already have and which ones are missing.</p>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card h-100 p-3">
+      <h5><i class="bi bi-shield-check text-muted"></i> Scam shield</h5>
+      <p class="text-muted mb-0">Fake listings often ask for fees or use free email addresses. We flag them before you apply.</p>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card h-100 p-3">
+      <h5><i class="bi bi-kanban text-muted"></i> Application tracker</h5>
+      <p class="text-muted mb-0">Move each job from saved to offer, prepare your resume and practise interview answers.</p>
+    </div>
+  </div>
+</div>
+{% endblock %}

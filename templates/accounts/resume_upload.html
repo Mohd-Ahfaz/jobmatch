@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Step 1: Upload Resume{% endblock %}
+{% block content %}
+<div class="row justify-content-center py-3">
+  <div class="col-lg-7">
+    <!-- Step Indicator -->
+    <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
+      <div class="d-flex align-items-center gap-2">
+        <span class="badge rounded-circle p-2 bg-primary text-white" style="width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; font-weight: bold;">1</span>
+        <strong>Step 1: Upload Resume</strong>
+      </div>
+      <div class="text-muted"><i class="bi bi-arrow-right"></i></div>
+      <div class="d-flex align-items-center gap-2 text-muted">
+        <span class="badge rounded-circle p-2 bg-light text-muted border" style="width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center;">2</span>
+        <span>Step 2: Review &amp; Complete</span>
+      </div>
+    </div>
+
+    <div class="card p-4 shadow-sm mb-4">
+      <div class="text-center mb-4">
+        <div class="mb-3">
+          <i class="bi bi-file-earmark-person-fill text-violet" style="font-size: 3.5rem;"></i>
+        </div>
+        <h4>Upload Your Resume</h4>
+        <p class="text-muted mb-0">Upload your PDF resume. JobMatch will automatically scan and extract your details so you don't have to fill them out by hand.</p>
+      </div>
+
+      <form method="post" enctype="multipart/form-data" class="styled-form">
+        {% csrf_token %}
+        <div class="mb-4">
+          <label class="form-label fw-bold mb-2">Select Resume (PDF format)</label>
+          {{ form.resume_file }}
+          {% if form.resume_file.help_text %}
+            <div class="form-text mt-1 text-muted">{{ form.resume_file.help_text }}</div>
+          {% endif %}
+          {% for error in form.resume_file.errors %}
+            <div class="text-danger small mt-1"><i class="bi bi-exclamation-circle me-1"></i>{{ error }}</div>
+          {% endfor %}
+        </div>
+
+        <button type="submit" class="btn btn-violet btn-lg w-100 py-2">
+          <i class="bi bi-file-earmark-arrow-up-fill me-2"></i> Scan &amp; Continue to Step 2 &rarr;
+        </button>
+      </form>
+    </div>
+
+    <div class="text-center">
+      <a href="{% url 'profile' %}" class="small text-muted text-decoration-none">
+        Don't have a resume right now? <u>Skip to manual profile form &rarr;</u>
+      </a>
+    </div>
+  </div>
+</div>
+{% endblock %}
