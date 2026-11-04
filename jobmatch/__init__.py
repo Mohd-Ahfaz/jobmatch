@@ -1,6 +1,8 @@
-import pymysql
-
-pymysql.install_as_MySQLdb()
+try:
+    import pymysql
+    pymysql.install_as_MySQLdb()
+except ImportError:
+    pass
 
 # Bypass MySQL 8.4+ requirement in newer Django versions for MySQL 8.0.x
 try:
